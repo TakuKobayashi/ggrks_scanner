@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -189,5 +190,23 @@ public class ApplicationHelper {
 		byte[] b = baos.toByteArray();
 		String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
 		return imageEncoded;
+	}
+
+	public static <T> T getClassByField(Object object, Class<T> targetClass) {
+		Field[] declaredFields = object.getClass().getDeclaredFields();
+
+		for (Field field : declaredFields) {
+			if (field.getType() == targetClass) {
+				field.setAccessible(true);
+				try {
+					T target = (T) field.get(object);
+					return target;
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+				break;
+			}
+		}
+		return null;
 	}
 }

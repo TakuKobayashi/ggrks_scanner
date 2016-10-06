@@ -1,6 +1,7 @@
 package kobayashi.taku.com.ggrks_scanner;
 
 import android.content.Context;
+import android.hardware.Camera;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,8 +57,10 @@ public class MainActivity extends AppCompatActivity {
         CameraSource mCameraSource = new CameraSource.Builder(this.getApplicationContext(), textRecognizer)
                 .setRequestedPreviewSize(640, 480)
                 .setFacing(CameraSource.CAMERA_FACING_BACK)
+                .setAutoFocusEnabled(true)
                 .setRequestedFps(30.0f)
                 .build();
+        Camera camera = ApplicationHelper.getClassByField(mCameraSource, Camera.class);
         try {
             Log.d(Config.TAG, "source");
             mCameraSource.start();
