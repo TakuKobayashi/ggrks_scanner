@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.MultiProcessor;
@@ -17,7 +18,7 @@ import com.google.android.gms.vision.text.TextRecognizer;
 
 import java.io.IOException;
 
-public class /:MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     private static int PERMISSION_REQUEST_CODE = 1;
     private SurfaceView mFrontPreview;
     private CameraSource mCameraSource;
@@ -27,18 +28,32 @@ public class /:MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ApplicationHelper.requestPermissions(this, PERMISSION_REQUEST_CODE);
-        mCameraSource = setupCamera();
         mFrontPreview = (SurfaceView) findViewById(R.id.camera_front);
         mFrontPreview.getHolder().addCallback(surfaceHolderCallback);
-
-        Camera camera = ApplicationHelper.getClassByField(mCameraSource, Camera.class);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if(mCameraSource != null) {
+            startScan(mCameraSource);
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(mCameraSource == null) {
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.activity_main);
+            mCameraSource = setupCamera(layout.getWidth(), layout.getHeight());
+            startScan(mCameraSource);
+        }
+    }
+
+    private void startScan(CameraSource scanner) {
         try {
-            mCameraSource.start(mFrontPreview.getHolder());
+            scanner.start(mFrontPreview.getHolder());
+            Camera camera = ApplicationHelper.getClassByField(mCameraSource, Camera.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,17 +62,16 @@ public class /:MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mCameraSource.stop();
+        mCameraSource.release();
+        mCameraSource = null;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mCameraSource.release();;
-        mCameraSource = null;
     }
 
-    private CameraSource setupCamera() {
+    private CameraSource setupCamera(int width, int height) {
         TextRecognizer textRecognizer = new TextRecognizer.Builder(this).build();
         textRecognizer.setProcessor(
                 new MultiProcessor.Builder<>(new MultiProcessor.Factory<TextBlock>() {
@@ -88,7 +102,7 @@ public class /:MainActivity extends AppCompatActivity {
                 }).build());
 
         CameraSource cameraSource = new CameraSource.Builder(this.getApplicationContext(), textRecognizer)
-                .setRequestedPreviewSize(640, 480)
+                .setRequestedPreviewSize(width, height)
                 .setFacing(CameraSource.CAMERA_FACING_BACK)
                 .setAutoFocusEnabled(true)
                 .setRequestedFps(30.0f)
