@@ -17,7 +17,7 @@ import com.google.android.gms.vision.text.TextRecognizer;
 
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity {
+public class /:MainActivity extends AppCompatActivity {
     private static int PERMISSION_REQUEST_CODE = 1;
     private SurfaceView mFrontPreview;
     private CameraSource mCameraSource;
