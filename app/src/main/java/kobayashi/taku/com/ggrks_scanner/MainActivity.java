@@ -5,8 +5,12 @@ import android.hardware.Camera;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
 import com.google.android.gms.vision.CameraSource;
@@ -26,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         ApplicationHelper.requestPermissions(this, PERMISSION_REQUEST_CODE);
         mFrontPreview = (SurfaceView) findViewById(R.id.camera_front);
@@ -84,12 +90,12 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onUpdate(FaceDetector.Detections<TextBlock> detectionResults, TextBlock block) {
+                            public void onUpdate(TextRecognizer.Detections<TextBlock> detectionResults, TextBlock block) {
                                 Log.d(Config.TAG, "update");
                             }
 
                             @Override
-                            public void onMissing(FaceDetector.Detections<TextBlock> detectionResults) {
+                            public void onMissing(TextRecognizer.Detections<TextBlock> detectionResults) {
                                 Log.d(Config.TAG, "missing");
                             }
 
@@ -107,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 .setAutoFocusEnabled(true)
                 .setRequestedFps(30.0f)
                 .build();
+        //ApplicationHelper.getClassByField(mCameraSource, Camera.class);
         return cameraSource;
     }
 
