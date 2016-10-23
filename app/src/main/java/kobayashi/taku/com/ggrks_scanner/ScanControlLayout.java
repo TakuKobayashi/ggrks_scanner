@@ -3,6 +3,8 @@ package kobayashi.taku.com.ggrks_scanner;
 import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -18,9 +20,22 @@ public class ScanControlLayout extends RelativeLayout {
     private ScaleGestureDetector mScaleGestureDetector;
     private Camera mCamera;
     private SparseArray<DrawRectView> mScanTextList = new SparseArray<DrawRectView>();
+    private Handler mHandler;
 
     public ScanControlLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if(msg.what == 1 || msg.what == 2) {
+                    DrawRectView view = (DrawRectView) msg.obj;
+                    if(msg.what == 2) {
+                        ScanControlLayout.this.addView(((DrawRectView) msg.obj));
+                    }
+                    view.invalidate();
+                }
+            }
+        };
         mScaleGestureDetector = new ScaleGestureDetector(context, gestureListener);
     }
 
@@ -50,20 +65,20 @@ public class ScanControlLayout extends RelativeLayout {
             int id = scanTextList.keyAt(i);
             TextBlock scan = scanTextList.valueAt(i);
             Rect bound = scan.getBoundingBox();
+            Log.d(Config.TAG, "id:" +id + " bound:" + bound + " text:" + scan.getValue() + " la:" + scan.getLanguage());
 
-            DrawRectView scanTextRectView = getScanTextView(id);
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT); //The WRAP_CONTENT parameters can be replaced by an absolute width and height or the FILL_PARENT option)
             params.leftMargin = bound.left; //Your X coordinate
             params.topMargin = bound.top; //Your Y coordinate
             params.width = bound.width();
             params.height = bound.height();
-            scanTextRectView.setLayoutParams(params);
-            scanTextRectView.invalidate();
+            setupScanTextView(id, params);
         }
     }
 
-    private DrawRectView getScanTextView(int id) {
+    private void setupScanTextView(int id, RelativeLayout.LayoutParams layoutParams) {
         DrawRectView scanTextRectView = mScanTextList.get(id, null);
+        int callWhat = 1;
         if(scanTextRectView == null) {
             scanTextRectView = new DrawRectView(this.getContext());
             scanTextRectView.setOnClickListener(new OnClickListener() {
@@ -74,8 +89,13 @@ public class ScanControlLayout extends RelativeLayout {
 
                 }
             });
+            scanTextRectView.setId(id);
+            callWhat = 2;
+            mScanTextList.put(id, scanTextRectView);
         }
-        return scanTextRectView;
+        scanTextRectView.setLayoutParams(layoutParams);
+        Message msg = Message.obtain(mHandler, callWhat, scanTextRectView);
+        mHandler.sendMessage(msg);
     }
 
 
