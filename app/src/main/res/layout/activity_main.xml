@@ -10,4 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
+    <kobayashi.taku.com.ggrks_scanner.ScanControlLayout
+        android:id="@+id/scane_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
 </RelativeLayout>

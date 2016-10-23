@@ -1,19 +1,23 @@
 package kobayashi.taku.com.ggrks_scanner;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.hardware.Camera;
-import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.widget.RelativeLayout;
 
-import java.io.IOException;
+import com.google.android.gms.vision.text.TextBlock;
 
 public class ScanControlLayout extends RelativeLayout {
     private ScaleGestureDetector mScaleGestureDetector;
     private Camera mCamera;
+    private SparseArray<DrawRectView> mScanTextList = new SparseArray<DrawRectView>();
 
     public ScanControlLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -21,8 +25,9 @@ public class ScanControlLayout extends RelativeLayout {
     }
 
     public void setScanCamera(Camera camera) {
+        Log.d(Config.TAG, "" + camera);
+        camera.setZoomChangeListener(zoomChangeListener);
         mCamera = camera;
-        mCamera.setZoomChangeListener(zoomChangeListener);
     }
 
     private Camera.OnZoomChangeListener zoomChangeListener = new Camera.OnZoomChangeListener() {
@@ -39,6 +44,40 @@ public class ScanControlLayout extends RelativeLayout {
         }
         return super.onTouchEvent(event);
     }
+
+    public void updateScanText(SparseArray<TextBlock> scanTextList) {
+        for(int i = 0;i < scanTextList.size();++i) {
+            int id = scanTextList.keyAt(i);
+            TextBlock scan = scanTextList.valueAt(i);
+            Rect bound = scan.getBoundingBox();
+
+            DrawRectView scanTextRectView = getScanTextView(id);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT); //The WRAP_CONTENT parameters can be replaced by an absolute width and height or the FILL_PARENT option)
+            params.leftMargin = bound.left; //Your X coordinate
+            params.topMargin = bound.top; //Your Y coordinate
+            params.width = bound.width();
+            params.height = bound.height();
+            scanTextRectView.setLayoutParams(params);
+            scanTextRectView.invalidate();
+        }
+    }
+
+    private DrawRectView getScanTextView(int id) {
+        DrawRectView scanTextRectView = mScanTextList.get(id, null);
+        if(scanTextRectView == null) {
+            scanTextRectView = new DrawRectView(this.getContext());
+            scanTextRectView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    LayoutInflater inflater = LayoutInflater.from(v.getContext());
+                    View view = inflater.inflate(R.layout.scan_text_button_list_view, null);
+
+                }
+            });
+        }
+        return scanTextRectView;
+    }
+
 
     private void handleZoom(MotionEvent event, Camera.Parameters params) {
         int maxZoom = params.getMaxZoom();

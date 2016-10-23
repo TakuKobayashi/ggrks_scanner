@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ggrks_scanner</string>
+    <string name="copy_clipboad_button_text">コピー</string>
+    <string name="share_button_text">共有</string>
+    <string name="save_file_button_text">保存</string>
+    <string name="search_button_text">検索</string>
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ggrks_scanner</string>
+    <string name="copy_clipboad_button_text">Copy</string>
+    <string name="share_button_text">Share</string>
+    <string name="save_file_button_text">Save</string>
+    <string name="search_button_text">Search</string>
+</resources>
