@@ -57,7 +57,7 @@ public class ScanControlLayout extends RelativeLayout {
         if(mScaleGestureDetector != null) {
             mScaleGestureDetector.onTouchEvent(event);
         }
-        return super.onTouchEvent(event);
+        return true;
     }
 
     public void updateScanText(SparseArray<TextBlock> scanTextList) {
@@ -119,8 +119,11 @@ public class ScanControlLayout extends RelativeLayout {
 
 
     private ScaleGestureDetector.SimpleOnScaleGestureListener gestureListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        private ScaleGestureDetector startDetector;
+
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
+            startDetector = detector;
             Log.d(Config.TAG, "onScaleBegin : "+ detector.getScaleFactor());
             return super.onScaleBegin(detector);
         }
@@ -128,11 +131,14 @@ public class ScanControlLayout extends RelativeLayout {
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
             super.onScaleEnd(detector);
+            startDetector = null;
             Log.d(Config.TAG, "onScaleEnd : "+ detector.getScaleFactor());
         }
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            if(startDetector != null) {
+            }
             Log.d(Config.TAG, "onScale : "+ detector.getScaleFactor());
             return true;
         };
