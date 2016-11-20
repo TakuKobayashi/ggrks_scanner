@@ -82,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private CameraSource setupCamera(int width, int height) {
-        TextRecognizer textRecognizer = new TextRecognizer.Builder(this).build();
+        //TextRecognizer textRecognizer = new TextRecognizer.Builder(this).build();
+        CostumTextRecognizer textRecognizer = new CostumTextRecognizer();
         textRecognizer.setProcessor(
                 new MultiProcessor.Builder<>(new MultiProcessor.Factory<TextBlock>() {
                     @Override
